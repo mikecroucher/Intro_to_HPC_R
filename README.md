@@ -209,7 +209,7 @@ qstat
 job-ID  prior   name       user         state submit/start at     queue                          slots ja-task-ID 
 -----------------------------------------------------------------------------------------------------------------      
  684688 0.00001 QRLOGIN    us1e3r       r     10/31/2017 11:25:31 all.q@sharc-node004.shef.ac.uk     1        
- 684692 0.00000 sharc_subm us1e3r       qw    10/31/2017 11:31:45                                    1    
+ 684694 0.00000 sharc_subm us1e3r       qw    10/31/2017 11:31:45                                    1    
 ```
 
 If you don't see your `sharc_submit.sh` job in `qstat`'s output this is probably because it's already finished running!  
@@ -220,22 +220,24 @@ A list of them can be found on the [HPC documentation website](http://docs.hpc.s
 
 #### Where did the output go?
 
-When the job has completed, you will see two new files in your current directory.
-In my case, they were `submit_to_sharc.sh.e83909`  and `submit_to_sharc.sh.o83909`.
+When the job has completed, you will see three new files in your current directory.
+In my case, they were `hello.r.o684694`, `sharc_submit.sh.e684694` and `sharc_submit.sh.o684694`
 The number at the end refers to the `job-ID`
 
-Look at these two files with the `more` command
+Look at these files with the `more` command
 
-* The file that ends with `.e83909` contains the standard error stream (stderr)
-* The file that ends with `.o83909` contains the standard output stream (stdout)
+* The file that ends with `.e684694` contains the standard error stream from the submission script (stderr)
+* The file that ends with `.o684694` contains the standard output stream from the submission script (stdout)
 
 Refer to the Wikipedia article on [standard streams](https://en.wikipedia.org/wiki/Standard_streams) for more information in this terminology.
+
+* The file `hello.r.o684694` contains the output of our R program.  We explicitly requested this filename in our submission script using the line `R CMD BATCH hello.r hello.r.o$JOB_ID`
 
 #### Requesting a LOT of memory
 
 Most of ShARC's nodes have 64Gb of RAM each. There are a small number with 256GB but these are heavily oversubscribed. 
 
-Everyone who is part of the MSc in Data Analytics has access to our [premium queue](http://rse.shef.ac.uk/resources/hpc/premium-hpc/) which includes access to nodes with up to 768GB of memory.
+Everyone who is part of the ooominds project has  [premium queue](http://rse.shef.ac.uk/resources/hpc/premium-hpc/) which includes access to nodes with up to 768GB of memory.  We also have powerful GPUs and nodes with up to 32 cores each.
 
 If you need to request a lot of memory for your job - for example 250 Gigabytes per core - add the following lines to your job submission script:
 

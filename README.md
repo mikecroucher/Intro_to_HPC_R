@@ -88,8 +88,8 @@ Let's look at what some of these versions mean
 
 * `apps/R/3.3.2/gcc-4.8.5`  Version 3.3.2 of R compiled with gcc version 4.8.5
 * `apps/R/3.4.0/gcc-4.8.5`  Version 3.4.0 of R compiled with gcc version 4.8.5
-* `apps/R/3.3.2/intel-17.0-sequential`Version 3.3.2 of R compiled with Intel Compiler version 17 and the sequential version of the MKL
-* `apps/R/3.3.2/intel-17.0-parallel` Version 3.3.2 of R compiled with Intel Compiler version 17 and the parallel version of the MKL
+* `apps/R/3.3.2/intel-17.0-sequential`Version 3.3.2 of R compiled with Intel Compiler version 17 and the sequential version of the MKL (For use on one core)
+* `apps/R/3.3.2/intel-17.0-parallel` Version 3.3.2 of R compiled with Intel Compiler version 17 and the parallel version of the MKL (For use on multiple cores)
 
 The variables in use here are:
 
@@ -108,137 +108,48 @@ Our advice is to first run your code with the gcc versions and, if performance i
 **Linear algebra libraries (e.g. MKL)**
 The performance of many R functions depends on linear algebra routines that have been written in languages such as C, C++ and Fortran.  The most important of these are called BLAS and LAPACK which provide things such as Matrix-Matrix Multiplication, eigenvalue solvers and so on.
 
-The speed of such libraries varies enormously.  
-The gcc versions of R on ShARC are built using versions of BLAS and LAPACK that ship with R itself.
+The speed of such libraries varies enormously.  The gcc versions of R on ShARC are built using versions of BLAS and LAPACK that ship with R itself.  These will not be the fastest versions available.
 
-Our Intel versions of R are built using the commercial Intel Math Kernel Library (MKL) which can be extremely fast in many cases.  
+Our Intel versions of R are built using the commercial Intel Math Kernel Library (MKL) which can be extremely fast in many cases. To see how much faster the MKL is for Sheffield's old HPC system, Iceberg, [see this blog post](http://rse.shef.ac.uk/blog/intel-R-iceberg/).
 
+**Choosing an R version and running it**
 
-
-### Exercise 5: Compile and run HelloWorld
-
-We've downloaded a project, taken a look at it and all seems well. We are almost ready to compile.
-
-The command we need to use is `sbt package` but when we try it, it doesn't work:
+Once you've decided which version of R you want to use, execute the `module load` command to make it available.
 
 ```
-sbt package
+module load apps/R/3.4.0/gcc-4.8.5
 ```
 
-results in
+Then, run it by executing the command `R`
 
 ```
-bash: sbt: command not found
-```
+[us1e3r@sharc-node004 ~]$ R
 
-This error message occurs because the `sbt` command is not available to us by default when we start a `qrshx` session on a compute node.
+R version 3.4.0 (2017-04-21) -- "You Stupid Darkness"
+Copyright (C) 2017 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
 
-To make `sbt` available (and Java and Spark which we also need), We first have to load the relevant `module files`
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
 
-```
-module load apps/java/jdk1.8.0_102/binary
-module load dev/sbt/0.13.13
-module load apps/spark/2.1.0/gcc-4.8.5
-```
+  Natural language support but running in an English locale
 
-Now, when you type `sbt package`, it will compile your program.
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
 
-If this is successful, you'll have a file in the location `target/scala-2.11/hello_2.11-1.0.jar`.
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
 
-Run with
-
-```
-spark-submit --master local[1] target/scala-2.11/hello_2.11-1.0.jar
-```
-
-You will see _warnings_ like:
+[Previously saved workspace restored]
 
 ```
-WARN: Unable to load native-hadoop library
-```
 
-These can be ignored.
+play around a little and then leave the session using `quit()`
 
-### Exercise 6: Manually create the directory structure
-
-We'll now learn how to create *HelloWorld* from scratch to give us practice in using Linux commands.
-
-#### Make sure you are home
-
-Ensure you are in your home directory by executing the command `cd` on its own. Check that you are where you expect to be using the `pwd` (print working directory) command.
-
-The result should be
-
-```
-/home/abc123
-```
-
-where `abc123` will be replaced by your username.
-
-#### Create the directory structure
-
-Start by creating the project directory. We'll call this `hello` in this case.
-
-To create our directory, we could use the graphical user interface of MobaXterm as shown in the screen shot below
-
-<img src="images/mobaXterm_newdir.png" />
-
-It's much easier, however, to use the `mkdir` command
-
-```
-mkdir hello
-```
-
-we could then proceed to create the other directories we need one command at a time:
-
-```
-mkdir hello/src
-mkdir hello/src/main
-mkdir hello/src/main/scala
-```
-
-Alternatively, we could take a shortcut and the `-p` *switch* of `mkdir` to create the whole nested structure at once.
-
-```
-mkidr -p hello/src/main/scala
-```
-
-Linux geeks are terminally lazy so if it feels like there should be a shortcut, there probably is one.
-
-However you do it, you need to create the above 4 embedded directories.
-
-#### Create the `.sbt` and `.scala` files
-
-Here, we create `.sbt` file and `.scala` file on the Windows machine (by downloading them or by copying and pasting them using an editor) and then transfer them to ShARC.
-
-Recall that the `.sbt` file contains the dependencies required by the program. Take a look at the `.sbt` file included [here](files/project.sbt) for the `helloWorld` program. The `.scala` program is also [available](files/hello.scala).
-
-#### Copy the `.sbt` file over to ShARC
-
-The `.sbt` file needs to be placed at the top level of the project.
-You can just drag and drop it from Windows to ShARC using MobaXterm.
-
-<img src="images/mobaxterm_transfer.png" />
-
-#### Copy the `.scala` file over to the HPC
-
-The `.scala` file needs to be placed in the `scala` directory.
-
-#### Compile and run the project
-
-Exactly as before, we compile and run with `sbt package` **but first** make sure that the **present working directory** of your terminal is the one containing your new `project.sbt` (otherwise when you run `sbt` it won't know how to compile your code).  
-
-You can check your present working directory (PWD) using `pwd` and list the files in your PWD using `ls`.  Note that **the PWD of the terminal and of MobaXterm's file browser do not need to be the same**.  Change into the `hello` directory if necessary using a two-letter command you learned earlier in this tutorial.
-
-If `sbt package` is successful, you'll have a file in the location `target/scala-2.11/hello_2.11-1.0.jar`.
-
-Run with
-
-```
-spark-submit --master local[1] target/scala-2.11/hello_2.11-1.0.jar
-```
-
-### Exercise 7: Run a program in batch mode
+### Exercise 5: Run an R program in batch mode
 
 Running short jobs, such as compiling our scala code or running *Hello World* is fine in interactive `qrshx` sessions.
 However, when we want to run long jobs or request resources such as multiple CPUs, we should start using **batch processing**.

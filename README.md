@@ -94,7 +94,7 @@ Let's look at what some of these versions mean
 The variables in use here are:
 
 **R version**
-We always have several available.  If you need one that is not there, please [raise an issue on the HPC documentation site](https://github.com/rcgsheffield/sheffield_hpc/issues)
+We have several available.  If you need one that is not there, please [raise an issue on the HPC documentation site](https://github.com/rcgsheffield/sheffield_hpc/issues)
 
 **Compiler version**
 Much of R is written in C and C++, languages that need to be compiled before using them.  
@@ -151,30 +151,52 @@ play around a little and then leave the session using `quit()`
 
 ### Exercise 5: Run an R program in batch mode
 
-Running short jobs, such as compiling our scala code or running *Hello World* is fine in interactive `qrshx` sessions.
-However, when we want to run long jobs or request resources such as multiple CPUs, we should start using **batch processing**.
+On a HPC system, interactive `qrshx` sessions should only be used for very short jobs. 
+When we want to run long jobs or request resources such as multiple CPUs and huge amounts of memory, we should start using **batch processing**.
 
-Let's get an example from GitHub that calculates Pi using a Monte Carlo algorithm.
-
-```
-git clone https://github.com/mikecroucher/scala-spark-MontePi
-```
-
-Compile it as usual
+We have some example batch jobs in various languages in our `HPC_examples` github repo.
+Execute the following command on ShARC.
 
 ```
-cd scala-spark-MontePi/
-sbt package
+git clone https://github.com/mikecroucher/HPC_Examples
 ```
 
-Instead of running it interactively, we are going to submit it to the scheduler queue.
-The example includes a **job submission script** called `submit_to_sharc.sh`
+Navigate to the R examples
 
-Look at this file using the `more` command to see if you can understand it.
+```
+cd HPC_Examples/languages/R
+```
+
+Go to the `hello_world`
+
+```
+cd hello_world
+```
+
+Take a look at the files that are there with the `ls` command
+
+```
+$ ls
+hello.r  sharc_submit.sh
+```
+
+The files are
+
+* hello.r - The R program we want to run
+* The **batch submission script** sometimes called **job submission script**
+
+Have a look at `hello.r` with the more command
+
+```
+more hello.r
+```
+
+
+Now look at the job submission script, `sharc_submit.sh` using the `more` command to see if you can understand it.
 When you are ready, submit it to the queue with the `qsub` command
 
 ```
-qsub submit_to_sharc.sh
+qsub sharc_submit.sh
 
 Your job 83909 ("submit_to_sharc.sh") has been submitted
 ```
@@ -184,13 +206,14 @@ You can see the status of the queuing or running job with the `qstat` command.
 ```
 qstat
 
-job-ID  prior   name       user         state submit/start at     queue                          slots ja-task-ID
------------------------------------------------------------------------------------------------------------------
-  81304 0.42776 bash       ab1abc       r     02/14/2017 23:53:29 interactive.q@sharc-node001.sh     1
-  83909 0.00000 submit_to_ ab1abc       qw    02/15/2017 03:22:23 shortint.q@sharc-node057.shef.     4  
+job-ID  prior   name       user         state submit/start at     queue                          slots ja-task-ID 
+-----------------------------------------------------------------------------------------------------------------      
+ 684688 0.00001 QRLOGIN    us1e3r       r     10/31/2017 11:25:31 all.q@sharc-node004.shef.ac.uk     1        
+ 684692 0.00000 sharc_subm us1e3r       qw    10/31/2017 11:31:45                                    1    
 ```
 
-If you don't see your `submit_to_sharc` job in `qstat`'s output this is probably because it's already finished running!
+If you don't see your `sharc_submit.sh` job in `qstat`'s output this is probably because it's already finished running!  
+The `QRLOGIN` job refers to your interactive session.
 
 `qsub` and `qstat` are examples of **scheduler commands**.
 A list of them can be found on the [HPC documentation website](http://docs.hpc.shef.ac.uk/en/latest/hpc/scheduler/index.html)

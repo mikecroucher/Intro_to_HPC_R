@@ -220,18 +220,16 @@ A list of them can be found on the [HPC documentation website](http://docs.hpc.s
 
 #### Where did the output go?
 
-When the job has completed, you will see three new files in your current directory.
-In my case, they were `hello.r.o684694`, `sharc_submit.sh.e684694` and `sharc_submit.sh.o684694`
+When the job has completed, you will see two new files in your current directory.
+In my case, they were `sharc_submit.sh.e684694` and `sharc_submit.sh.o684694`
 The number at the end refers to the `job-ID`
 
 Look at these files with the `more` command
 
-* The file that ends with `.e684694` contains the standard error stream from the submission script (stderr)
-* The file that ends with `.o684694` contains the standard output stream from the submission script (stdout)
+* The file that ends with `.e684694` contains the standard error stream (stderr)
+* The file that ends with `.o684694` contains the standard output stream (stdout) 
 
 Refer to the Wikipedia article on [standard streams](https://en.wikipedia.org/wiki/Standard_streams) for more information in this terminology.
-
-* The file `hello.r.o684694` contains the output of our R program.  We explicitly requested this filename in our submission script using the line `R CMD BATCH hello.r hello.r.o$JOB_ID`
 
 #### Requesting a LOT of memory
 

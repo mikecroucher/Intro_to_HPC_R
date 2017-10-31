@@ -67,85 +67,53 @@ You are now on a compute node and have access to your own CPU core and 8 Gigabyt
 
 Now would be a good time to learn some Linux commands using our [Mini Terminal Tutorial](terminal_tutorial.md)
 
-### Exercise 4: Download Scala/Spark 'Hello World' (one we made earlier)
+### Exercise 4: Run R interactively
 
-To run a **Scala** program on a Linux machine, it will need to be compiled using the [Scala build tool](http://www.scala-sbt.org/) (SBT). This requires a very strict directory structure *and* a `.sbt` file specifying dependencies. We illustrate this on the `helloWorld` example.
-
-On the compute node, download a prepared *Hello World* application from GitHub with the command
-
-```
-git clone https://github.com/mikecroucher/scala-spark-HelloWorld
-```
-
-Enter the directory containing the code with the command
+Once you are in a `qrshx` session, you can run R interactively.  
+The system has several versions of R installed and you first have to select which one you want to use.
+To see them all, execute the command 
 
 ```
-cd scala-spark-HelloWorld/
+module avail apps/R/
 ```
 
-List the files in this directory with the Linux command `ls`
+At the time of writing, this resulted in 
 
 ```
-ls
+apps/R/3.3.2/gcc-4.8.5             apps/R/3.3.2/intel-17.0-sequential apps/R/3.4.0/gcc-4.8.5             apps/R/3.4.0/intel-17.0-sequential
+apps/R/3.3.2/intel-17.0-parallel   apps/R/3.3.3/gcc-4.8.5             apps/R/3.4.0/intel-17.0-parallel
 ```
 
-Should give the output
+Let's look at what some of these versions mean
 
-```
-project.sbt  README.md  src
-```
+* `apps/R/3.3.2/gcc-4.8.5`  Version 3.3.2 of R compiled with gcc version 4.8.5
+* `apps/R/3.4.0/gcc-4.8.5`  Version 3.4.0 of R compiled with gcc version 4.8.5
+* `apps/R/3.3.2/intel-17.0-sequential`Version 3.3.2 of R compiled with Intel Compiler version 17 and the sequential version of the MKL
+* `apps/R/3.3.2/intel-17.0-parallel` Version 3.3.2 of R compiled with Intel Compiler version 17 and the parallel version of the MKL
 
-Take a look at the contents of `project.sbt`, which defines our project, with the Linux command `more`
+The variables in use here are:
 
-```
-more project.sbt
-```
+**R version**
+We always have several available.  If you need one that is not there, please [raise an issue on the HPC documentation site](https://github.com/rcgsheffield/sheffield_hpc/issues)
 
-Should give the output
+**Compiler version**
+Much of R is written in C and C++, languages that need to be compiled before using them.  
+The standard compiler suite on Linux machines such as ShARC is the gcc suite (The GNU Compiler Collection) but [several others exist](http://docs.hpc.shef.ac.uk/en/latest/sharc/software/development/index.html).
+For everyday use, we suggest that you use one of the gcc versions since this will be very similar to the experience you have when using R on a 'normal' linux desktop.
 
-```
-name := "hello"
-version := "1.0"
-scalaVersion := "2.11.8"
-libraryDependencies ++= Seq(
-    "org.apache.spark" %% "spark-core" % "2.0.1",
-    "org.apache.spark" %% "spark-sql" % "2.0.1"
-)
-// Could add other dependencies here e.g.
-// libraryDependencies += "org.apache.spark" %% "spark-mllib" % "2.0.1"
-```
+Those versions of R that have been compiled using the commercial Intel Compilers are there for performance reasons.
+Sometimes, they can be faster than the gcc versions but at the expense of being possibily incompatible with some packages.
+Our advice is to first run your code with the gcc versions and, if performance is a problem, compare with the Intel version to see if it helps speed things up.
 
-The `project.sbt` defines how our project will be compiled.
-The code that is to be compiled is hidden a few directories deeper.
+**Linear algebra libraries (e.g. MKL)**
+The performance of many R functions depends on linear algebra routines that have been written in languages such as C, C++ and Fortran.  The most important of these are called BLAS and LAPACK which provide things such as Matrix-Matrix Multiplication, eigenvalue solvers and so on.
 
-View it using the `more` command
+The speed of such libraries varies enormously.  
+The gcc versions of R on ShARC are built using versions of BLAS and LAPACK that ship with R itself.
 
-```
-more src/main/scala/hello.scala
-```
+Our Intel versions of R are built using the commercial Intel Math Kernel Library (MKL) which can be extremely fast in many cases.  
 
-Which should give the output
 
-```
-import org.apache.spark.sql.SparkSession
-// define main method (scala entry point)
-object HelloWorld {
-  def main(args: Array[String]): Unit = {
-
-    // initialise spark session (running in "local" mode)
-    val sparkSession = SparkSession.builder
-      .master("local")
-      .appName("Hello World")
-       .getOrCreate()
-
-    // do stuff
-    println("Hello, world!")
-
-    // terminate underlying spark context
-    sparkSession.stop()
-  }
-}
-```
 
 ### Exercise 5: Compile and run HelloWorld
 
